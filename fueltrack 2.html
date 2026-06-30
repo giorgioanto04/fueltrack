@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FuelTrack">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0F1923">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icon-167.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<title>FuelTrack – Gestionale Carburante</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',sans-serif;background:#F0F4F8;color:#0F1923;overscroll-behavior:none}
+:root{
+  --ink:#0F1923;--ink2:#3A4A5A;--ink3:#7A8FA0;
+  --surface:#F0F4F8;--card:#fff;--border:#D8E2EC;
+  --red:#E94560;--blue:#1B6CA8;--teal:#0D8C72;--amber:#E89020;
+  --sidebar:220px;--topbar:56px;--bottomnav:64px;
+}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+.topbar{height:var(--topbar);background:#0F1923;display:flex;align-items:center;padding:0 16px;padding-top:env(safe-area-inset-top);height:calc(var(--topbar) + env(safe-area-inset-top));gap:12px;flex-shrink:0;z-index:10}
+.logo-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.logo-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-left:auto}
+.conn-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);padding:4px 10px;border-radius:99px;cursor:pointer}
+.dot{width:7px;height:7px;border-radius:50%}
+.dot-ok{background:#0D8C72}.dot-err{background:#E94560}.dot-idle{background:#7A8FA0}
+.body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:var(--sidebar);background:#0F1923;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto}
+.nav-group{padding:12px 0;flex:1}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:12px 18px;background:none;border:none;color:rgba(255,255,255,0.55);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:left;border-left:3px solid transparent}
+.nav-btn.active{color:#fff;background:rgba(255,255,255,0.09);border-left-color:#E94560}
+.nav-btn:hover:not(.active){color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05)}
+.nav-btn .ti{font-size:18px;flex-shrink:0}
+.sidebar-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;color:rgba(255,255,255,0.35)}
+.content{flex:1;overflow-y:auto;padding:20px}
+.section{display:none}.section.active{display:block}
+.bottom-nav{display:none;height:var(--bottomnav);padding-bottom:env(safe-area-inset-bottom);height:calc(var(--bottomnav) + env(safe-area-inset-bottom));background:#0F1923;flex-shrink:0;z-index:10}
+.bottom-nav-inner{display:flex;height:100%}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:rgba(255,255,255,0.45);font-size:10px;cursor:pointer;border-top:2px solid transparent;transition:all .15s}
+.bnav-btn.active{color:#fff;border-top-color:#E94560}
+.bnav-btn .ti{font-size:22px}
+h2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--ink)}
+.page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.subtitle{font-size:12px;color:var(--ink3);margin-top:2px}
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:4px;margin-top:12px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,108,168,0.1)}
+textarea{resize:vertical;min-height:60px}
+.btn{padding:10px 16px;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-primary{background:var(--red);color:#fff}.btn-primary:hover{opacity:.88}
+.btn-secondary{background:none;border:0.5px solid var(--border);color:var(--ink2)}.btn-secondary:hover{background:var(--surface)}
+.btn-success{background:var(--teal);color:#fff}.btn-success:hover{opacity:.88}
+.btn-danger{background:none;border:0.5px solid #fcc;color:#c0392b;font-size:12px;padding:7px 12px}.btn-danger:hover{background:#fff0f0}
+.btn-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi-card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px}
+.kpi-label{font-size:10px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--ink);line-height:1}
+.kpi-unit{font-size:12px;color:var(--ink3);font-weight:400;margin-left:2px}
+.table-wrap{overflow-x:auto;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 10px;font-size:10px;font-weight:600;color:var(--ink3);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+td{padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--ink);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--surface)}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500}
+.badge-fuel{background:#FEF0E6;color:#C05A10}
+.badge-new{background:#EEF4FF;color:#1B5CB0}
+.vehicle-card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px}
+.vehicle-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.vehicle-icon{width:42px;height:42px;border-radius:10px;background:#EEF4FF;display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:20px;flex-shrink:0}
+.vehicle-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700}
+.vehicle-meta{font-size:11px;color:var(--ink3);margin-top:1px}
+.vehicle-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0;padding:10px 0;border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border)}
+.vstat-label{font-size:10px;color:var(--ink3)}
+.vstat-value{font-size:14px;font-weight:700;margin-top:2px}
+.preview-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px}
+.preview-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);margin:8px 0}
+.preview-total-label{font-size:14px;font-weight:700}
+.preview-total-value{font-size:22px;font-weight:700;color:var(--red)}
+.chart-wrap{position:relative;width:100%;height:200px;margin-top:12px}
+.setup-box{background:#FFFBEC;border:0.5px solid #E8CC60;border-radius:12px;padding:16px;margin-bottom:16px}
+.setup-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#7A5500;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.setup-steps{font-size:13px;color:#5A4000;line-height:2}
+.setup-steps code{background:rgba(0,0,0,0.07);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:11px}
+.divider{height:0.5px;background:var(--border);margin:14px 0}
+.no-data{text-align:center;padding:30px 16px;color:var(--ink3);font-size:13px}
+.toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#0F1923;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:680px){
+  .sidebar{display:none}
+  .bottom-nav{display:block}
+  .content{padding:14px 12px}
+  .grid2{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+  .grid4{grid-template-columns:1fr 1fr}
+  .toast{bottom:calc(74px + env(safe-area-inset-bottom))}
+  h2{font-size:18px}
+}
+@media(max-width:400px){
+  .grid3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo-title"><i class="ti ti-gas-station"></i> FuelTrack</div>
+    <div class="logo-sub" id="today-lbl"></div>
+    <div class="conn-pill" onclick="nav('config',null)">
+      <span class="dot dot-idle" id="top-dot"></span>
+      <span id="top-status">Non connesso</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="nav-group">
+        <button class="nav-btn active" onclick="nav('rifornimento',this)"><i class="ti ti-gas-station"></i> Rifornimenti</button>
+        <button class="nav-btn" onclick="nav('dashboard',this)"><i class="ti ti-chart-bar"></i> Dashboard</button>
+        <button class="nav-btn" onclick="nav('mezzi',this)"><i class="ti ti-truck"></i> Mezzi</button>
+        <button class="nav-btn" onclick="nav('config',this)"><i class="ti ti-settings"></i> Configurazione</button>
+      </div>
+      <div class="sidebar-foot" id="sidebar-status">In attesa di connessione</div>
+    </div>
+
+    <div class="content">
+
+      <!-- RIFORNIMENTO -->
+      <div class="section active" id="sec-rifornimento">
+        <div class="page-head">
+          <div><h2>Nuovo rifornimento</h2><div class="subtitle">Registra un pieno o rifornimento parziale</div></div>
+        </div>
+        <div class="grid2" style="align-items:start">
+          <div>
+            <div class="card">
+              <div class="card-title"><i class="ti ti-pencil"></i> Dati rifornimento</div>
+              <label>Mezzo</label>
+              <select id="r-mezzo"></select>
+              <label>Data</label>
+              <input type="date" id="r-data">
+              <label>Km attuali (odometro)</label>
+              <input type="number" id="r-km" placeholder="es. 45230">
+              <label>Litri erogati</label>
+              <input type="number" id="r-litri" step="0.01" placeholder="es. 42.50">
+              <label>Prezzo al litro (€)</label>
+              <input type="number" id="r-prezzo" step="0.001" placeholder="es. 1.789">
+              <label>Tipo carburante</label>
+              <select id="r-tipo">
+                <option>Benzina</option><option>Diesel</option><option>GPL</option>
+                <option>Metano</option><option>Elettrico</option><option>HVO</option>
+              </select>
+              <label>Pieno completo?</label>
+              <select id="r-pieno">
+                <option value="si">Sì, pieno completo</option>
+                <option value="no">No, parziale</option>
+              </select>
+              <label>Nota (opzionale)</label>
+              <input type="text" id="r-nota" placeholder="es. Distributore Agip A4">
+              <div class="btn-row">
+                <button class="btn btn-primary" onclick="salvaRifornimento()"><i class="ti ti-device-floppy"></i> Salva</button>
+                <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-title"><i class="ti ti-calculator"></i> Anteprima costi</div>
+              <div id="preview-box"><div class="no-data">Compila i campi per vedere l'anteprima</div></div>
+            </div>
+            <div class="card">
+              <div class="card-title"><i class="ti ti-history"></i> Ultimi rifornimenti</div>
+              <div id="last-list"><div class="no-data">Nessun dato</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="section" id="sec-dashboard">
+        <div class="page-head">
+          <div><h2>Dashboard</h2><div class="subtitle">Analisi consumi e costi</div></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="d-filter" style="font-size:13px;width:auto" onchange="renderDashboard()">
+              <option value="">Tutti i mezzi</option>
+            </select>
+            <button class="btn btn-secondary" onclick="loadData()" style="padding:8px 12px"><i class="ti ti-refresh"></i></button>
+          </div>
+        </div>
+        <div class="grid4" style="margin-bottom:14px">
+          <div class="kpi-card"><div class="kpi-label">Consumo medio</div><div class="kpi-value" id="kpi-consumo">—<span class="kpi-unit">L/100km</span></div></div>
+          <div class="kpi-card"><div class="kpi-label">Spesa totale</div><div class="kpi-value" id="kpi-spesa">—<span class="kpi-unit">€</span></div></div>
+          <div class="kpi-card"><div class="kpi-label">Km percorsi</div><div class="kpi-value" id="kpi-km">—<span class="kpi-unit">km</span></div></div>
+          <div class="kpi-card"><div class="kpi-label">Rifornimenti</div><div class="kpi-value" id="kpi-rif">—</div></div>
+        </div>
+        <div class="grid2" style="margin-bottom:14px">
+          <div class="card">
+            <div class="card-title"><i class="ti ti-chart-line"></i> Consumo mensile (L/100km)</div>
+            <div class="chart-wrap"><canvas id="chart-consumo" role="img" aria-label="Consumo mensile">Consumo mensile</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ti ti-chart-bar"></i> Costo per km (€/km)</div>
+            <div class="chart-wrap"><canvas id="chart-costo" role="img" aria-label="Costo per km">Costo per km</canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-table"></i> Storico rifornimenti</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Data</th><th>Mezzo</th><th>Km</th><th>Litri</th><th>€/L</th><th>Totale</th><th>L/100km</th><th>Tipo</th></tr></thead>
+              <tbody id="tbody-all"><tr><td colspan="8" class="no-data">Nessun dato</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEZZI -->
+      <div class="section" id="sec-mezzi">
+        <div class="page-head">
+          <div><h2>Gestione mezzi</h2><div class="subtitle">Parco veicoli registrati</div></div>
+          <button class="btn btn-primary" onclick="toggleForm()"><i class="ti ti-plus"></i> Nuovo mezzo</button>
+        </div>
+        <div class="card" id="form-mezzo" style="display:none">
+          <div class="card-title"><i class="ti ti-truck"></i> Registra nuovo mezzo</div>
+          <div class="grid2">
+            <div>
+              <label>Nome / Targa *</label>
+              <input type="text" id="v-nome" placeholder="es. Fiat Ducato BX123GH">
+              <label>Tipo mezzo</label>
+              <select id="v-tipo">
+                <option>Autovettura</option><option>Furgone</option><option>Camion</option>
+                <option>Moto</option><option>Mezzo agricolo</option><option>Altro</option>
+              </select>
+              <label>Carburante default</label>
+              <select id="v-carb">
+                <option>Benzina</option><option>Diesel</option><option>GPL</option>
+                <option>Metano</option><option>Elettrico</option><option>HVO</option>
+              </select>
+            </div>
+            <div>
+              <label>Marca</label>
+              <input type="text" id="v-marca" placeholder="es. Fiat">
+              <label>Modello</label>
+              <input type="text" id="v-modello" placeholder="es. Ducato 2.3 MJet">
+              <label>Anno</label>
+              <input type="number" id="v-anno" placeholder="es. 2020">
+            </div>
+          </div>
+          <label>Km iniziali (odometro attuale)</label>
+          <input type="number" id="v-km" placeholder="es. 85000" style="max-width:220px">
+          <div class="btn-row">
+            <button class="btn btn-success" onclick="salvaMezzo()"><i class="ti ti-device-floppy"></i> Salva mezzo</button>
+            <button class="btn btn-secondary" onclick="toggleForm()">Annulla</button>
+          </div>
+        </div>
+        <div class="grid3" id="vehicles-grid">
+          <div class="no-data" style="grid-column:1/-1">Nessun mezzo registrato</div>
+        </div>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="section" id="sec-config">
+        <div class="page-head">
+          <div><h2>Configurazione</h2><div class="subtitle">Collegamento Google Sheets</div></div>
+        </div>
+        <div class="setup-box">
+          <div class="setup-title"><i class="ti ti-info-circle"></i> Come configurare</div>
+          <div class="setup-steps">
+            <b>1.</b> Vai su <a href="https://sheets.new" target="_blank" style="color:var(--blue)">sheets.new</a> e crea un foglio Google<br>
+            <b>2.</b> Rinomina i fogli: <code>Rifornimenti</code> e <code>Mezzi</code><br>
+            <b>3.</b> Vai su <a href="https://script.google.com" target="_blank" style="color:var(--blue)">script.google.com</a> → Nuovo progetto<br>
+            <b>4.</b> Incolla il codice qui sotto con il tuo ID foglio, salva<br>
+            <b>5.</b> Distribuisci → App web → Chiunque → copia URL<br>
+            <b>6.</b> Incolla l'URL nel campo sotto e premi Connetti
+          </div>
+          <div style="margin-top:12px">
+            <div style="font-size:12px;font-weight:600;color:#7A5500;margin-bottom:6px">Codice Apps Script:</div>
+            <textarea readonly id="script-code" style="height:160px;background:#FEF9E0;border-color:#D4A010;font-family:monospace;font-size:11px;color:#3A2A00"></textarea>
+            <button class="btn btn-secondary" style="margin-top:8px;font-size:12px" onclick="copyScript()"><i class="ti ti-copy"></i> Copia codice</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-plug"></i> Connessione</div>
+          <label>URL Web App (da Google Apps Script)</label>
+          <input type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec">
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="connetti()"><i class="ti ti-plug"></i> Connetti e carica dati</button>
+            <button class="btn btn-secondary" onclick="loadDemo()"><i class="ti ti-database-import"></i> Dati demo</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:12px;font-size:12px;color:var(--ink3)" id="cfg-status-row">
+            <span class="dot dot-idle" id="cfg-dot"></span><span id="cfg-status-txt">In attesa</span>
+          </div>
+          <div class="divider"></div>
+          <div style="font-size:11px;color:var(--ink3)"><i class="ti ti-shield-lock"></i> L'URL è salvato solo nel tuo browser. I dati restano nel tuo Google Sheets.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="bnav-btn active" onclick="nav('rifornimento',this)"><i class="ti ti-gas-station"></i><span>Rifornimenti</span></button>
+      <button class="bnav-btn" onclick="nav('dashboard',this)"><i class="ti ti-chart-bar"></i><span>Dashboard</span></button>
+      <button class="bnav-btn" onclick="nav('mezzi',this)"><i class="ti ti-truck"></i><span>Mezzi</span></button>
+      <button class="bnav-btn" onclick="nav('config',this)"><i class="ti ti-settings"></i><span>Config</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var DEFAULT_URL='https://script.google.com/macros/s/AKfycbz6KjQ4XTnD0n6jSDDUEGpdgkCX8m6UuMT7jFGP_Vdhz4xpiWAwlBSVheSKHmFpLeLbWw/exec';
+var appData={url:DEFAULT_URL,mezzi:[],rifornimenti:[]};
+var charts={};
+
+var SCRIPT=`var SPREADSHEET_ID = 'INCOLLA_QUI_IL_TUO_ID';
+
+function doGet(e) {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var sheetName = e.parameter.sheet || 'Rifornimenti';
+  var s = ss.getSheetByName(sheetName);
+  if (!s) s = ss.insertSheet(sheetName);
+  var out = ContentService.createTextOutput(JSON.stringify(s.getDataRange().getValues()));
+  out.setMimeType(ContentService.MimeType.JSON);
+  return out;
+}
+
+function doPost(e) {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var p = JSON.parse(e.postData.contents);
+  var s = ss.getSheetByName(p.sheet);
+  if (!s) s = ss.insertSheet(p.sheet);
+  s.appendRow(p.row);
+  var out = ContentService.createTextOutput('ok');
+  out.setMimeType(ContentService.MimeType.JSON);
+  return out;
+}`;
+
+document.getElementById('script-code').value=SCRIPT;
+document.getElementById('today-lbl').textContent=new Date().toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+document.getElementById('r-data').value=new Date().toISOString().split('T')[0];
+
+function nav(s,btn){
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn,.bnav-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('sec-'+s).classList.add('active');
+  if(btn){
+    document.querySelectorAll('.nav-btn,.bnav-btn').forEach(b=>{
+      if(b.getAttribute('onclick')===btn.getAttribute('onclick'))b.classList.add('active');
+    });
+  }
+  if(s==='dashboard')renderDashboard();
+  if(s==='mezzi')renderMezzi();
+}
+
+function toast(msg,ok){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  t.style.background=ok===false?'#E94560':'#0F1923';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);
+}
+
+function setConn(state,msg){
+  var cls=state==='ok'?'dot-ok':state==='err'?'dot-err':'dot-idle';
+  ['top-dot','cfg-dot'].forEach(id=>{document.getElementById(id).className='dot '+cls;});
+  document.getElementById('top-status').textContent=msg;
+  document.getElementById('cfg-status-txt').textContent=msg;
+  document.getElementById('sidebar-status').textContent=msg;
+}
+
+function saveLocal(){
+  localStorage.setItem('ft_url',appData.url);
+  localStorage.setItem('ft_mezzi',JSON.stringify(appData.mezzi));
+  localStorage.setItem('ft_rifs',JSON.stringify(appData.rifornimenti));
+}
+function loadLocal(){
+  var savedUrl=localStorage.getItem('ft_url')||DEFAULT_URL;
+  appData.url=savedUrl;
+  document.getElementById('cfg-url').value=appData.url;
+  try{appData.mezzi=JSON.parse(localStorage.getItem('ft_mezzi')||'[]');}catch(e){}
+  try{appData.rifornimenti=JSON.parse(localStorage.getItem('ft_rifs')||'[]');}catch(e){}
+  updateSelects();renderUltimi();
+  // Carica sempre i dati freschi da Sheets all'avvio
+  setConn('idle','Caricamento dati...');
+  connetti();
+}
+
+function parseMezzi(rows){
+  if(!rows||rows.length<2)return appData.mezzi;
+  return rows.slice(1).filter(r=>r[1]).map(r=>({id:r[0]||'m'+Date.now(),nome:r[1],tipo:r[2],marca:r[3],modello:r[4],anno:r[5],carburante:r[6],kmIniziali:parseFloat(r[7])||0}));
+}
+function parseRifs(rows){
+  if(!rows||rows.length<2)return appData.rifornimenti;
+  return rows.slice(1).filter(r=>r[0]).map(r=>({data:String(r[0]).substring(0,10),mezzo:r[1],kmAttuali:parseFloat(r[2])||0,kmPercorsi:parseFloat(r[3])||0,litri:parseFloat(r[4])||0,prezzoLitro:parseFloat(r[5])||0,totale:parseFloat(r[6])||0,consumo:parseFloat(r[7])||0,tipo:r[8],pieno:r[9],nota:r[10]}));
+}
+
+async function connetti(){
+  var url=document.getElementById('cfg-url').value.trim();
+  if(!url){toast('Inserisci l\'URL',false);return;}
+  appData.url=url;setConn('idle','Connessione...');
+  try{
+    var r1=await fetch(url+'?action=read&sheet=Mezzi');
+    var d1=await r1.json();appData.mezzi=parseMezzi(d1);
+    var r2=await fetch(url+'?action=read&sheet=Rifornimenti');
+    var d2=await r2.json();appData.rifornimenti=parseRifs(d2);
+    saveLocal();updateSelects();renderUltimi();
+    setConn('ok','Connesso · '+appData.mezzi.length+' mezzi');
+    toast('Connessione riuscita!');
+  }catch(e){setConn('err','Errore connessione');toast('Errore: '+e.message,false);}
+}
+
+async function loadData(){
+  if(!appData.url){toast('Configura prima la connessione',false);return;}
+  await connetti();
+}
+
+function copyScript(){navigator.clipboard.writeText(SCRIPT).then(()=>toast('Codice copiato!'));}
+
+function updateSelects(){
+  var opts='<option value="">Seleziona mezzo...</option>'+appData.mezzi.map(m=>`<option value="${m.nome}">${m.nome}</option>`).join('');
+  document.getElementById('r-mezzo').innerHTML=opts;
+  var opts2='<option value="">Tutti i mezzi</option>'+appData.mezzi.map(m=>`<option value="${m.nome}">${m.nome}</option>`).join('');
+  document.getElementById('d-filter').innerHTML=opts2;
+}
+
+function calcPreview(){
+  var l=parseFloat(document.getElementById('r-litri').value)||0;
+  var p=parseFloat(document.getElementById('r-prezzo').value)||0;
+  var km=parseFloat(document.getElementById('r-km').value)||0;
+  var mezzo=document.getElementById('r-mezzo').value;
+  var box=document.getElementById('preview-box');
+  if(!l||!p){box.innerHTML='<div class="no-data">Inserisci litri e prezzo/L</div>';return;}
+  var tot=l*p;
+  var extra='';
+  if(km>0){
+    var prev=appData.rifornimenti.filter(r=>r.mezzo===mezzo&&r.kmAttuali>0&&r.pieno==='si').sort((a,b)=>b.kmAttuali-a.kmAttuali);
+    if(prev.length>0){var kp=km-prev[0].kmAttuali;if(kp>0){var c=(l/kp*100).toFixed(1);extra=`<div style="padding:10px 0 0"><div style="font-size:10px;color:var(--ink3);margin-bottom:2px">CONSUMO CALCOLATO</div><div style="font-size:22px;font-weight:700;font-family:'Space Grotesk',sans-serif">${c}<span style="font-size:12px;color:var(--ink3)"> L/100km</span></div><div style="font-size:11px;color:var(--ink3)">${kp} km dal pieno precedente</div></div>`;}}
+  }
+  box.innerHTML=`
+    <div class="preview-row"><span style="color:var(--ink3)">Litri</span><span style="font-weight:500">${l.toFixed(2)} L</span></div>
+    <div class="preview-row"><span style="color:var(--ink3)">Prezzo/L</span><span style="font-weight:500">€ ${p.toFixed(3)}</span></div>
+    <div class="preview-total"><span class="preview-total-label">Totale</span><span class="preview-total-value">€ ${tot.toFixed(2)}</span></div>
+    ${extra}`;
+}
+['r-litri','r-prezzo','r-km','r-mezzo'].forEach(id=>document.getElementById(id).addEventListener('input',calcPreview));
+
+async function salvaRifornimento(){
+  var mezzo=document.getElementById('r-mezzo').value;
+  var data=document.getElementById('r-data').value;
+  var km=parseFloat(document.getElementById('r-km').value);
+  var l=parseFloat(document.getElementById('r-litri').value);
+  var p=parseFloat(document.getElementById('r-prezzo').value);
+  var tipo=document.getElementById('r-tipo').value;
+  var pieno=document.getElementById('r-pieno').value;
+  var nota=document.getElementById('r-nota').value;
+  if(!mezzo||!data||!km||!l||!p){toast('Compila tutti i campi obbligatori',false);return;}
+  var tot=parseFloat((l*p).toFixed(2));
+  var prev=appData.rifornimenti.filter(r=>r.mezzo===mezzo&&r.kmAttuali>0&&r.pieno==='si').sort((a,b)=>b.kmAttuali-a.kmAttuali);
+  var kp=prev.length>0?km-prev[0].kmAttuali:0;
+  var cons=kp>0&&pieno==='si'?parseFloat((l/kp*100).toFixed(2)):0;
+  var row={data,mezzo,kmAttuali:km,kmPercorsi:kp>0?kp:0,litri:l,prezzoLitro:p,totale:tot,consumo:cons,tipo,pieno,nota};
+  appData.rifornimenti.push(row);
+  saveLocal();
+  if(appData.url){
+    try{await fetch(appData.url,{method:'POST',body:JSON.stringify({sheet:'Rifornimenti',row:[data,mezzo,km,kp>0?kp:0,l,p,tot,cons,tipo,pieno,nota]})});toast('Salvato su Google Sheets!');}
+    catch(e){toast('Salvato in locale (offline)');}
+  }else{toast('Salvato in locale');}
+  renderUltimi();resetForm();
+}
+
+function resetForm(){
+  document.getElementById('r-mezzo').value='';
+  document.getElementById('r-data').value=new Date().toISOString().split('T')[0];
+  ['r-km','r-litri','r-prezzo','r-nota'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('preview-box').innerHTML='<div class="no-data">Compila i campi per vedere l\'anteprima</div>';
+}
+
+function renderUltimi(){
+  var items=[...appData.rifornimenti].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,5);
+  var el=document.getElementById('last-list');
+  if(!items.length){el.innerHTML='<div class="no-data">Nessun rifornimento</div>';return;}
+  el.innerHTML='<div class="table-wrap"><table><thead><tr><th>Data</th><th>Mezzo</th><th>L</th><th>€</th></tr></thead><tbody>'+
+    items.map(r=>`<tr><td>${r.data}</td><td style="max-width:110px;overflow:hidden;text-overflow:ellipsis">${r.mezzo}</td><td>${r.litri}</td><td>${r.totale}</td></tr>`).join('')+'</tbody></table></div>';
+}
+
+function toggleForm(){
+  var f=document.getElementById('form-mezzo');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+
+async function salvaMezzo(){
+  var nome=document.getElementById('v-nome').value.trim();
+  if(!nome){toast('Inserisci nome/targa',false);return;}
+  var m={id:'m'+Date.now(),nome,tipo:document.getElementById('v-tipo').value,marca:document.getElementById('v-marca').value,modello:document.getElementById('v-modello').value,anno:document.getElementById('v-anno').value,carburante:document.getElementById('v-carb').value,kmIniziali:parseFloat(document.getElementById('v-km').value)||0};
+  appData.mezzi.push(m);saveLocal();
+  if(appData.url){
+    try{await fetch(appData.url,{method:'POST',body:JSON.stringify({sheet:'Mezzi',row:[m.id,m.nome,m.tipo,m.marca,m.modello,m.anno,m.carburante,m.kmIniziali]})});toast('Mezzo salvato su Sheets!');}
+    catch(e){toast('Salvato in locale');}
+  }else{toast('Mezzo salvato');}
+  updateSelects();renderMezzi();toggleForm();
+  ['v-nome','v-marca','v-modello','v-anno','v-km'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderMezzi(){
+  var g=document.getElementById('vehicles-grid');
+  if(!appData.mezzi.length){g.innerHTML='<div class="no-data" style="grid-column:1/-1">Nessun mezzo. Aggiungine uno!</div>';return;}
+  g.innerHTML=appData.mezzi.map(m=>{
+    var rifs=appData.rifornimenti.filter(r=>r.mezzo===m.nome);
+    var kmTot=rifs.reduce((a,r)=>a+(r.kmPercorsi||0),0);
+    var spesa=rifs.reduce((a,r)=>a+(r.totale||0),0);
+    var cc=rifs.filter(r=>r.consumo>0).map(r=>r.consumo);
+    var avg=cc.length?(cc.reduce((a,b)=>a+b)/cc.length).toFixed(1):'—';
+    return `<div class="vehicle-card">
+      <div class="vehicle-header">
+        <div class="vehicle-icon"><i class="ti ti-truck"></i></div>
+        <div><div class="vehicle-name">${m.nome}</div><div class="vehicle-meta">${[m.marca,m.modello,m.anno].filter(Boolean).join(' · ')}</div></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <span class="badge badge-fuel">${m.carburante}</span>
+        <span class="badge badge-new">${m.tipo}</span>
+      </div>
+      <div class="vehicle-stats">
+        <div><div class="vstat-label">Rifornimenti</div><div class="vstat-value">${rifs.length}</div></div>
+        <div><div class="vstat-label">Km percorsi</div><div class="vstat-value">${kmTot.toLocaleString('it-IT')}</div></div>
+        <div><div class="vstat-label">L/100km</div><div class="vstat-value">${avg}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--ink3);margin-bottom:10px">Spesa totale: <b style="color:var(--ink)">€ ${spesa.toFixed(2)}</b></div>
+      <button class="btn btn-danger" onclick="eliminaMezzo('${m.id}')"><i class="ti ti-trash"></i> Elimina</button>
+    </div>`;
+  }).join('');
+}
+
+function eliminaMezzo(id){
+  if(!confirm('Eliminare questo mezzo?'))return;
+  appData.mezzi=appData.mezzi.filter(m=>m.id!==id);
+  saveLocal();updateSelects();renderMezzi();toast('Mezzo eliminato');
+}
+
+function mLabel(d){var dt=new Date(d);return (dt.getMonth()+1)+'/'+dt.getFullYear();}
+
+function renderDashboard(){
+  var f=document.getElementById('d-filter').value;
+  var rifs=f?appData.rifornimenti.filter(r=>r.mezzo===f):appData.rifornimenti;
+  var kmTot=rifs.reduce((a,r)=>a+(r.kmPercorsi||0),0);
+  var spTot=rifs.reduce((a,r)=>a+(r.totale||0),0);
+  var cc=rifs.filter(r=>r.consumo>0).map(r=>r.consumo);
+  var avg=cc.length?(cc.reduce((a,b)=>a+b)/cc.length).toFixed(1):'—';
+  document.getElementById('kpi-consumo').innerHTML=avg+'<span class="kpi-unit">L/100km</span>';
+  document.getElementById('kpi-spesa').innerHTML='€ '+spTot.toFixed(0);
+  document.getElementById('kpi-km').innerHTML=kmTot.toLocaleString('it-IT')+'<span class="kpi-unit">km</span>';
+  document.getElementById('kpi-rif').innerHTML=rifs.length;
+  var tbody=document.getElementById('tbody-all');
+  var sorted=[...rifs].sort((a,b)=>b.data.localeCompare(a.data));
+  tbody.innerHTML=sorted.map(r=>`<tr>
+    <td>${r.data}</td><td>${r.mezzo}</td><td>${r.kmAttuali.toLocaleString('it-IT')}</td>
+    <td>${r.litri} L</td><td>€${r.prezzoLitro}</td><td>€${r.totale}</td>
+    <td>${r.consumo>0?r.consumo+' L/100':'—'}</td>
+    <td><span class="badge badge-fuel">${r.tipo||''}</span></td>
+  </tr>`).join('')||'<tr><td colspan="8" class="no-data">Nessun dato</td></tr>';
+  buildCharts(rifs);
+}
+
+function buildCharts(rifs){
+  var byM={};
+  rifs.filter(r=>r.consumo>0).forEach(r=>{var m=mLabel(r.data);if(!byM[m])byM[m]={sc:0,nc:0,sk:[]};byM[m].sc+=r.consumo;byM[m].nc++;});
+  rifs.filter(r=>r.kmPercorsi>0&&r.totale>0).forEach(r=>{var m=mLabel(r.data);if(!byM[m])byM[m]={sc:0,nc:0,sk:[]};byM[m].sk.push(r.totale/r.kmPercorsi);});
+  var months=Object.keys(byM).slice(-6);
+  var ac=months.map(m=>byM[m].nc>0?(byM[m].sc/byM[m].nc).toFixed(1):null);
+  var ak=months.map(m=>byM[m].sk.length>0?(byM[m].sk.reduce((a,b)=>a+b)/byM[m].sk.length).toFixed(3):null);
+  var base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#7A8FA0'}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10},color:'#7A8FA0'}}}};
+  if(charts.c)charts.c.destroy();
+  if(charts.k)charts.k.destroy();
+  charts.c=new Chart(document.getElementById('chart-consumo'),{type:'line',data:{labels:months,datasets:[{data:ac,borderColor:'#E94560',backgroundColor:'rgba(233,69,96,0.07)',borderWidth:2,pointBackgroundColor:'#E94560',pointRadius:4,fill:true,tension:0.35}]},options:base});
+  charts.k=new Chart(document.getElementById('chart-costo'),{type:'bar',data:{labels:months,datasets:[{data:ak,backgroundColor:'#1B6CA8',borderRadius:4}]},options:base});
+}
+
+function loadDemo(){
+  appData.mezzi=[
+    {id:'m1',nome:'Fiat Ducato GH123AB',tipo:'Furgone',marca:'Fiat',modello:'Ducato 2.3 MJet',anno:'2020',carburante:'Diesel',kmIniziali:45000},
+    {id:'m2',nome:'Ford Transit BX456CD',tipo:'Furgone',marca:'Ford',modello:'Transit 2.0 TDCi',anno:'2019',carburante:'Diesel',kmIniziali:78000}
+  ];
+  var ms=['2025-01-15','2025-02-18','2025-03-12','2025-04-20','2025-05-08','2025-06-14'];
+  appData.rifornimenti=[
+    {data:ms[0],mezzo:'Fiat Ducato GH123AB',kmAttuali:45800,kmPercorsi:800,litri:68.4,prezzoLitro:1.699,totale:116.21,consumo:8.55,tipo:'Diesel',pieno:'si',nota:'Demo'},
+    {data:ms[1],mezzo:'Fiat Ducato GH123AB',kmAttuali:46750,kmPercorsi:950,litri:81.2,prezzoLitro:1.712,totale:138.94,consumo:8.55,tipo:'Diesel',pieno:'si',nota:'Demo'},
+    {data:ms[2],mezzo:'Fiat Ducato GH123AB',kmAttuali:47600,kmPercorsi:850,litri:73.1,prezzoLitro:1.689,totale:123.47,consumo:8.60,tipo:'Diesel',pieno:'si',nota:'Demo'},
+    {data:ms[3],mezzo:'Fiat Ducato GH123AB',kmAttuali:48550,kmPercorsi:950,litri:84.5,prezzoLitro:1.695,totale:143.23,consumo:8.89,tipo:'Diesel',pieno:'si',nota:'Demo'},
+    {data:ms[4],mezzo:'Ford Transit BX456CD',kmAttuali:79200,kmPercorsi:1200,litri:88.4,prezzoLitro:1.705,totale:150.73,consumo:7.37,tipo:'Diesel',pieno:'si',nota:'Demo'},
+    {data:ms[5],mezzo:'Ford Transit BX456CD',kmAttuali:80300,kmPercorsi:1100,litri:79.8,prezzoLitro:1.698,totale:135.48,consumo:7.25,tipo:'Diesel',pieno:'si',nota:'Demo'}
+  ];
+  saveLocal();updateSelects();renderUltimi();renderMezzi();toast('Dati demo caricati!');
+}
+
+loadLocal();
+</script>
+</body>
+</html>
